@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Ultimate Statistiek Calculator</title>
+
+    <style>
+
+        body{
+            margin:0;
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:
+            linear-gradient(135deg,#0a0a0a,#151515,#1f1f1f);
+            font-family:Arial;
+            color:white;
+            overflow:hidden;
+        }
+
+        .background-glow{
+            position:absolute;
+            width:700px;
+            height:700px;
+            background:radial-gradient(circle, rgba(0,255,150,0.12), transparent 70%);
+            filter:blur(40px);
+            z-index:0;
+        }
+
+        .container{
+            position:relative;
+            z-index:1;
+            width:480px;
+            background:rgba(20,20,20,0.95);
+            border-radius:25px;
+            padding:35px;
+            box-shadow:
+            0 0 25px rgba(0,255,150,0.15),
+            0 0 80px rgba(0,255,150,0.08);
+
+            border:1px solid rgba(0,255,150,0.15);
+            backdrop-filter:blur(10px);
+        }
+
+        h1{
+            text-align:center;
+            margin-top:0;
+            font-size:34px;
+            color:#00ff99;
+        }
+
+        .subtitle{
+            text-align:center;
+            color:#bdbdbd;
+            margin-bottom:25px;
+        }
+
+        input{
+            width:100%;
+            padding:16px;
+            border:none;
+            border-radius:12px;
+            background:#2a2a2a;
+            color:white;
+            font-size:16px;
+            box-sizing:border-box;
+            outline:none;
+            transition:0.2s;
+        }
+
+        input:focus{
+            box-shadow:0 0 15px rgba(0,255,150,0.3);
+        }
+
+        .buttons{
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:12px;
+            margin-top:20px;
+        }
+
+        button{
+            padding:14px;
+            border:none;
+            border-radius:12px;
+            background:#00ff99;
+            color:black;
+            font-weight:bold;
+            font-size:15px;
+            cursor:pointer;
+            transition:0.2s;
+        }
+
+        button:hover{
+            transform:scale(1.03);
+            box-shadow:0 0 15px rgba(0,255,150,0.4);
+        }
+
+        .results{
+            margin-top:28px;
+            background:#222;
+            border-radius:18px;
+            padding:22px;
+        }
+
+        .results h3{
+            margin:12px 0;
+            color:#00ff99;
+            font-size:18px;
+        }
+
+        .footer{
+            text-align:center;
+            margin-top:18px;
+            color:#777;
+            font-size:13px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="background-glow"></div>
+
+    <div class="container">
+
+        <h1>Ultimate Stats</h1>
+
+        <p class="subtitle">
+            Voer getallen in gescheiden door komma's
+        </p>
+
+        <input
+        id="numbers"
+        placeholder="Bijv: 4, 8, 15, 16, 23, 42">
+
+        <div class="buttons">
+
+            <button onclick="calculateStats()">
+                Bereken
+            </button>
+
+            <button onclick="convertToPercentages()">
+                Naar %
+            </button>
+
+            <button onclick="calculateSum()">
+                Totale Som
+            </button>
+
+            <button onclick="clearAll()">
+                Reset
+            </button>
+
+        </div>
+
+        <div class="results">
+
+            <h3 id="average">Gemiddelde:</h3>
+
+            <h3 id="median">Mediaan:</h3>
+
+            <h3 id="mode">Modus:</h3>
+
+            <h3 id="highest">Hoogste:</h3>
+
+            <h3 id="lowest">Laagste:</h3>
+
+            <h3 id="sum">Som:</h3>
+
+            <h3 id="percentages">Percentages:</h3>
+
+        </div>
+
+        <div class="footer">
+            Project gemaakt met HTML, CSS & JavaScript
+        </div>
+
+    </div>
+
+    <script>
+
+        function getNumbers(){
+
+            const input =
+            document.getElementById("numbers").value;
+
+            let numbers = input
+                .split(",")
+                .map(num => Number(num.trim()))
+                .filter(num => !isNaN(num));
+
+            return numbers;
+
+        }
+
+        function calculateStats(){
+
+            let numbers = getNumbers();
+
+            if(numbers.length === 0){
+                alert("Voer geldige getallen in.");
+                return;
+            }
+
+            numbers.sort((a,b) => a - b);
+
+            // SOM
+            let total = 0;
+
+            for(let i = 0; i < numbers.length; i++){
+                total += numbers[i];
+            }
+
+            // GEMIDDELDE
+            const average =
+            (total / numbers.length).toFixed(2);
+
+            // MEDIAAN
+            let median;
+
+            if(numbers.length % 2 === 0){
+
+                const mid1 =
+                numbers[(numbers.length / 2) - 1];
+
+                const mid2 =
+                numbers[numbers.length / 2];
+
+                median = (mid1 + mid2) / 2;
+
+            } else {
+
+                median =
+                numbers[Math.floor(numbers.length / 2)];
+
+            }
+
+            // MODUS
+            const frequency = {};
+
+            let maxFrequency = 0;
+
+            let mode = [];
+
+            for(let num of numbers){
+
+                frequency[num] =
+                (frequency[num] || 0) + 1;
+
+                if(frequency[num] > maxFrequency){
+                    maxFrequency = frequency[num];
+                }
+
+            }
+
+            for(let num in frequency){
+
+                if(frequency[num] === maxFrequency){
+                    mode.push(num);
+                }
+
+            }
+
+            if(mode.length === numbers.length){
+                mode = ["Geen modus"];
+            }
+
+            // HOOGSTE & LAAGSTE
+            const highest = Math.max(...numbers);
+            const lowest = Math.min(...numbers);
+
+            // RESULTATEN
+            document.getElementById("average").innerText =
+            "Gemiddelde: " + average;
+
+            document.getElementById("median").innerText =
+            "Mediaan: " + median;
+
+            document.getElementById("mode").innerText =
+            "Modus: " + mode.join(", ");
+
+            document.getElementById("highest").innerText =
+            "Hoogste: " + highest;
+
+            document.getElementById("lowest").innerText =
+            "Laagste: " + lowest;
+
+            document.getElementById("sum").innerText =
+            "Som: " + total;
+
+        }
+
+        function calculateSum(){
+
+            let numbers = getNumbers();
+
+            let total = 0;
+
+            for(let num of numbers){
+                total += num;
+            }
+
+            document.getElementById("sum").innerText =
+            "Som: " + total;
+
+        }
+
+        function convertToPercentages(){
+
+            let numbers = getNumbers();
+
+            if(numbers.length === 0){
+                alert("Voer geldige getallen in.");
+                return;
+            }
+
+            let total = 0;
+
+            for(let num of numbers){
+                total += num;
+            }
+
+            let percentageList = [];
+
+            for(let num of numbers){
+
+                let percentage =
+                ((num / total) * 100).toFixed(2);
+
+                percentageList.push(
+                    num + " = " + percentage + "%"
+                );
+
+            }
+
+            document.getElementById("percentages").innerText =
+            "Percentages: " + percentageList.join(" | ");
+
+        }
+
+        function clearAll(){
+
+            document.getElementById("numbers").value = "";
+
+            document.getElementById("average").innerText =
+            "Gemiddelde:";
+
+            document.getElementById("median").innerText =
+            "Mediaan:";
+
+            document.getElementById("mode").innerText =
+            "Modus:";
+
+            document.getElementById("highest").innerText =
+            "Hoogste:";
+
+            document.getElementById("lowest").innerText =
+            "Laagste:";
+
+            document.getElementById("sum").innerText =
+            "Som:";
+
+            document.getElementById("percentages").innerText =
+            "Percentages:";
+
+        }
+
+    </script>
+
+</body>
+
+</html>
